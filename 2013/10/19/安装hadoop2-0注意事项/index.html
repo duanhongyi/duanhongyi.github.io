@@ -96,20 +96,24 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Coding">
-<meta property="og:url" content="http://yoursite.com/archives/2019/index.html">
+  <meta name="description" content="千万不能添加一条指向自己的hosts记录，ubuntu默认会建立，请一定删除。 安装统一的内网域名解析服务器dnsmasq辅助管理haddop。 dnsmasq域名服务器配置完成后需要重启（service dnsmasq restart）。 配置统一的rsa密钥，hadoop各节点之间无密码登录。 需要在整个集群中使用NTP服务。  具体安装方法请参见hadoop官网">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安装hadoop2.0注意事项">
+<meta property="og:url" content="http://yoursite.com/2013/10/19/安装hadoop2-0注意事项/index.html">
 <meta property="og:site_name" content="Coding">
+<meta property="og:description" content="千万不能添加一条指向自己的hosts记录，ubuntu默认会建立，请一定删除。 安装统一的内网域名解析服务器dnsmasq辅助管理haddop。 dnsmasq域名服务器配置完成后需要重启（service dnsmasq restart）。 配置统一的rsa密钥，hadoop各节点之间无密码登录。 需要在整个集群中使用NTP服务。  具体安装方法请参见hadoop官网">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-02-14T01:04:24.364Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Coding">
+<meta name="twitter:title" content="安装hadoop2.0注意事项">
+<meta name="twitter:description" content="千万不能添加一条指向自己的hosts记录，ubuntu默认会建立，请一定删除。 安装统一的内网域名解析服务器dnsmasq辅助管理haddop。 dnsmasq域名服务器配置完成后需要重启（service dnsmasq restart）。 配置统一的rsa密钥，hadoop各节点之间无密码登录。 需要在整个集群中使用NTP服务。  具体安装方法请参见hadoop官网">
 
 
 
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2019/">
+  <link rel="canonical" href="http://yoursite.com/2013/10/19/安装hadoop2-0注意事项/">
 
 
 
@@ -119,7 +123,7 @@
   };
 </script>
 
-  <title>归档 | Coding</title>
+  <title>安装hadoop2.0注意事项 | Coding</title>
   
 
 
@@ -167,7 +171,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -226,7 +230,7 @@
         
         
           
-          <li class="menu-item menu-item-archives menu-item-active">
+          <li class="menu-item menu-item-archives">
 
     
     
@@ -268,94 +272,195 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        还行! 目前共计 32 篇日志。 继续努力。
-      </span>
-      
-
-      
-
-        
-        
-        
-
-        
-          
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
-
-        
+  
 
   <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2013/10/19/安装hadoop2-0注意事项/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="duanhongyi">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Coding">
+    </span>
+
+    
+      <header class="post-header">
+
         
-          <a class="post-title-link" href="/2019/01/03/批量修改文件夹和文件夹名/" itemprop="url">
-            
-              <span itemprop="name">批量修改文件夹和文件夹名</span>
-            
-          </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">安装hadoop2.0注意事项
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-01-03T11:57:52+08:00" content="2019-01-03">
-          01-03
-        </time>
-      </div>
+              
+            
+          </h1>
+        
 
-    </header>
-  </article>
+        <div class="post-meta">
+          <span class="post-time">
 
+            
+            
+            
 
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2013-10-19 23:50:31" itemprop="dateCreated datePublished" datetime="2013-10-19T23:50:31+08:00">2013-10-19</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-02-14 09:04:24" itemprop="dateModified" datetime="2019-02-14T09:04:24+08:00">2019-02-14</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
+      
 
+      
+        <ol>
+<li>千万不能添加一条指向自己的hosts记录，ubuntu默认会建立，请一定删除。</li>
+<li>安装统一的内网域名解析服务器dnsmasq辅助管理haddop。</li>
+<li>dnsmasq域名服务器配置完成后需要重启（service dnsmasq restart）。</li>
+<li>配置统一的rsa密钥，hadoop各节点之间无密码登录。</li>
+<li>需要在整个集群中使用NTP服务。</li>
+</ol>
+<p><a href="http://hadoop.apache.org/docs/r2.2.0/hadoop-project-dist/hadoop-common/ClusterSetup.html" target="_blank" rel="noopener">具体安装方法请参见hadoop官网</a></p>
+
+      
     </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/02/19/自动更新ubuntu-debian/" rel="next" title="自动更新ubuntu/debian">
+                <i class="fa fa-chevron-left"></i> 自动更新ubuntu/debian
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/02/19/ubuntu12-04升级到postgis2-0数据库/" rel="prev" title="ubuntu12.04升级到postgis2.0数据库">
+                ubuntu12.04升级到postgis2.0数据库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -550,6 +655,10 @@
 
 
   
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
 
   
 
@@ -560,6 +669,8 @@
 
   
 
+
+  
 
 
   
