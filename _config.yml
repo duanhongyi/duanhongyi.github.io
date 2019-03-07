@@ -5,8 +5,8 @@
 # Site
 title: Coding
 subtitle: Simple is better
-description:
-keywords:
+description: Life Is Short, Use Python.
+keywords: Drycc Workflow
 author: duanhongyi
 language: zh-CN
 timezone: Asia/Shanghai
@@ -88,3 +88,9 @@ deploy:
     ignore_hidden: false
     ignore_pattern:
       public: .
+
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000

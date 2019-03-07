@@ -6,24 +6,32 @@ date: 2018-10-31 22:35:23
 
 # 生成剧本
 
-<div class="highlight"><pre><span></span>cp -rfp inventory/sample inventory/deis
+```
+cp -rfp inventory/sample inventory/drycc
 declare -a IPS=(10.1.80.51 10.1.80.52 10.1.80.53 10.1.80.54)
-CONFIG_FILE=inventory/deis/hosts.ini python3 contrib/inventory_builder/inventory.py <span class="cp">${</span><span class="n">IPS</span><span class="p">[</span><span class="err">@</span><span class="p">]</span><span class="cp">}</span>
-</pre></div>
+CONFIG_FILE=inventory/drycc/hosts.ini python3 contrib/inventory_builder/inventory.py
+```
 
 # 修改kubespray的docker registry
 
-修改配置文件 `inventory/deis/group_vars/all/docker.yml`中的docker_registry_mirrors节点
+修改配置文件 `inventory/deis/group_vars/all/docker.yml`中的docker_registry_mirrors和docker_insecure_registries:
 
-<div class="highlight"><pre><span></span>docker_registry_mirrors:
+```
+docker_insecure_registries:
+  - gcr.io
+  - quay.io
+
+docker_registry_mirrors:
   - https://registry.docker-cn.com
-</pre></div>
+```
 
-# 添加海外代理科学安装kubernetes
+# 添加科学安装kubernetes，需要在海外启动docker registry代理
 
-修改配置文件`inventory/deis/group_vars/all/all.yaml`中的`http_proxy`和`https_proxy`以及`no_proxy`
+可在阿里云香港云机上启动docker registry代理
 
-<div class="highlight"><pre><span></span>http_proxy: &quot;http://203.189.234.212:3128&quot;
-https_proxy: &quot;https://203.189.234.212:3128&quot;
-no_proxy: &quot;localhost,127.0.0.1,registry.docker-cn.com&quot;
-</pre></div>
+```
+git clone https://github.com/duanhongyi/docker-mirrors
+./start.sh
+```
+
+修改DNS，将gcr.io和quay.io这两个域名劫持到该云主机
