@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[Install NFS and Minio on k8s]]></title>
+    <url>%2F2019%2F03%2F07%2FInstall-NFS-and-Minio-on-k8s%2F</url>
+    <content type="text"><![CDATA[Install nfs-client-provisioner1234helm install --name k8s-nfs \ --set nfs.server=192.168.6.100 \ --set nfs.path=/nas/k8s-nfs/baike \ stable/nfs-client-provisioner Installing Minio in nasgateway mode12345678helm install --name minio \ --set persistence.storageClass=nfs-client \ --set persistence.size=100G \ --set service.type=NodePort \ --set service.nodePort=31053 \ --set nasgateway.enabled=true \ --set nasgateway.replicas=3 \ stable/minio]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[Create mattermost-team-edition by helm]]></title>
+    <url>%2F2019%2F02%2F21%2FCreate-mattermost-team-edition-by-helm%2F</url>
+    <content type="text"><![CDATA[Mattermost 不仅运用灵活，更是杰出的协作工具，可让部门或团队成员进行公开或私人对话、文件传输，并运用更多帮助提高生产力的实用功能。 123456789helm install stable/mattermost-team-edition \ --name mattermost-team-edition \ --namespace mattermost-team-edition \ --set persistence.data.enabled=false \ --set mysql.enabled=false \ --set service.type=NodePort \ --set externalDB.enabled=true \ --set externalDB.externalDriverType=&quot;postgres&quot; \ --set externalConnectionString=&quot;postgres://user:passwd@host:port/database?sslmode=disable&amp;connect_timeout=10&quot;]]></content>
+      <tags>
+        <tag>k8s helm mattermost mattermost-team-edition</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[批量修改文件夹和文件夹名]]></title>
+    <url>%2F2019%2F01%2F03%2F%E6%89%B9%E9%87%8F%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E5%A4%B9%E5%92%8C%E6%96%87%E4%BB%B6%E5%A4%B9%E5%90%8D%2F</url>
+    <content type="text"><![CDATA[import osimport sysfind_name_tpl = &quot;find . -name &#39;{old_name}&#39;&quot;find_filename_tpl = &quot;find . -type f -name &#39;*&#39;&quot;rename_text_tpl = find_filename_tpl \ + &quot;| xargs perl -pi -e &#39;s|{old_name}|{name}|g&#39;&quot;def rename(path, old_name, name): os.system(rename_text_tpl.format(old_name=old_name, name=name)) filename_list = filter(lambda x: x, os.popen(find_name_tpl.format( path=path, old_name=old_name, )).read().split(&quot;\n&quot;)) need_recursion = False for filename in filename_list: if not filename: continue new_filename = filename.replace(old_name, name, 1) os.system(&quot;mv %s %s&quot; % (filename, new_filename)) if old_name in new_filename: need_recursion = True if need_recursion: rename(path, old_name, name)if name == &quot;main&quot;: path = sys.argv[1] os.chdir(path) old_name = sys.argv[2] name = sys.argv[3] rename(path, old_name, name)]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[在国内通过kubespray安装kubernetes集群]]></title>
+    <url>%2F2018%2F10%2F31%2F%E5%9C%A8%E5%9B%BD%E5%86%85%E9%80%9A%E8%BF%87kubespray%E5%AE%89%E8%A3%85kubernetes%E9%9B%86%E7%BE%A4%2F</url>
+    <content type="text"><![CDATA[生成剧本123cp -rfp inventory/sample inventory/dryccdeclare -a IPS=(10.1.80.51 10.1.80.52 10.1.80.53 10.1.80.54)CONFIG_FILE=inventory/drycc/hosts.ini python3 contrib/inventory_builder/inventory.py 修改kubespray的docker registry修改配置文件 inventory/deis/group_vars/all/docker.yml中的docker_registry_mirrors和docker_insecure_registries: 123456docker_insecure_registries: - gcr.io - quay.iodocker_registry_mirrors: - https://registry.docker-cn.com 添加科学安装kubernetes，需要在海外启动docker registry代理可在阿里云香港云机上启动docker registry代理 12git clone https://github.com/duanhongyi/docker-mirrors./start.sh 修改DNS，将gcr.io和quay.io这两个域名劫持到该云主机]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[使用cProfile找出python的性能瓶颈]]></title>
+    <url>%2F2018%2F10%2F10%2F%E4%BD%BF%E7%94%A8cProfile%E6%89%BE%E5%87%BApython%E7%9A%84%E6%80%A7%E8%83%BD%E7%93%B6%E9%A2%88%2F</url>
+    <content type="text"><![CDATA[Python自带了几个性能分析的模块：profile、cProfile；cProfile基于lsprof的用C语言实现的扩展应用，运行开销比较合理，适合分析运行时间较长的程序；profile纯Python实现的性能分析模块，接口和cProfile一致。但在分析程序时增加了很大的运行开销。不过，如果你想扩展profiler的功能，可以通过继承这个模块实现；本文以cProfile为例。 运行如下命令：python -m cProfile -s cumulative {CMD} &gt; profile.log 其中{CMD}为正常使用程序的原始命令，以gunicorn为例： python -m cProfile ../env/bin/gunicorn -c gunicorn_config.py &gt; profile.log 分析profile.log结果：5132124 function calls (5012662 primitive calls) in 17.813 secondsOrdered by: cumulative timencalls tottime percall cumtime percall filename:lineno(function) 1 0.000 0.000 16.727 16.727 server.py:52(serve_forever)1980/2 0.012 0.000 7.679 3.839 query.py:171(_get_records)1000/1 0.007 0.000 7.477 7.477 socketserver.py:610(process_request_thread)1000/1 0.007 0.000 7.477 7.477 socketserver.py:342(finish_request)1000/1 0.011 0.000 7.477 7.477 socketserver.py:667(init)1000/1 0.015 0.000 7.477 7.477 server.py:126(handle)1000/1 0.015 0.000 7.477 7.477 server.py:156(get_reply)3673/6 0.030 0.000 7.477 1.246 query.py:99(_recursive_query)1000/1 0.012 0.000 7.476 7.476 server.py:26(resolve) ncalls：表示函数调用的次数 tottime：函数的总的运行时间，除掉函数中调用子函数的运行时间 percall：第一个percall，等于 tottime/ncalls cumtime：函数及其所有子函数的调用运行的时间 percall：第二个percall，函数运行一次的平均时间，等于 cumtime/ncalls filename:lineno(function)：每个函数调用的具体信息]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[redis实现事务锁]]></title>
+    <url>%2F2018%2F08%2F20%2Fredis%E5%AE%9E%E7%8E%B0%E4%BA%8B%E5%8A%A1%E9%94%81%2F</url>
+    <content type="text"><![CDATA[watch 字面就是监视的意思，这里可以看做为数据库中乐观锁的概念，谁都可以读，谁都可以修改，但是修改的人必须保证自己watch的数据没有被别人修改过，否则就修改失败了,如果在watch后值被修改，在执行pipe.execute()的时候会报异常WatchError: Watched variable changed.这里可以简单的实现基于redis中的锁库存的逻辑。 代码示例: import timeimport logginglogger = logging.getLogger(name)def do_sync_data(): print(&quot;safe sync data&quot;)def lock_and_sync(): while True: with redis_conn.pipeline() as pipe: try: pipe.watch(&#39;sync_last_modify_time’) # 关注一个key timestamp = float(pipe.get(&#39;sync_last_modify_time&#39;)) if (time.time() - timestamp) &gt; 600: # 大于5分钟 pipe.multi() # 事务开始 pipe.set(&#39;sync_last_modify_time&#39;, time.time()) # 更新时间戳 pipe.execute() # 事务结束 do_sync_data() # do something except Exception as e: logger.exception(e) except WatchError as e: logger.info(&quot;Has been locked：%s&quot; % e) time.sleep(5)if name == &#39;main&#39;: lock_and_sync()]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[install normandy vampires web to z83xx]]></title>
+    <url>%2F2018%2F08%2F17%2Finstall-normandy-vampires-web-to-z83xx%2F</url>
+    <content type="text"><![CDATA[update nsssudo apt-get updatesudo apt-get install libnss3 sudo nopasswdchmod u+w /etc/sudoersecho &quot;zhumengyuan ALL=(ALL) NOPASSWD: ALL&quot; &gt;&gt; /etc/sudoerschmod u-w /etc/sudoers install python3-setuptools vlcsudo apt-get install python3-setuptoolssudo apt-get install vlc install intel driverwget https://download.01.org/gfx/ubuntu/16.04/main/pool/main/i/intel-graphics-update-tool/intel-graphics-update-tool_2.0.2_amd64.debsudo dpkg -i intel-graphics-update-tool_2.0.2_amd64.debsudo intel-graphics-update-toolsudo apt-get install -fsudo intel-graphics-update-toolwget $(echo &quot;https://download&quot;.01.org/gfx/RPM-GPG-GROUP-KEY-ilg) -O - | sudo apt-key add -sudo apt-get update install realtek driverwget https://az695102.vo.msecnd.net/rtdrivers/cn/nic/0012-r8168-8.046.00.tar.bz2sudo apt-get install make gcc libelf-devsudo tar -xvzf 0012-r8168-8.046.00.tar.bz2sudo ./autorun.sh]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[Mac os中使用iterm2+vim+solarized配置]]></title>
+    <url>%2F2018%2F01%2F09%2FMac-os%E4%B8%AD%E4%BD%BF%E7%94%A8iterm2-vim-solarized%E9%85%8D%E7%BD%AE%2F</url>
+    <content type="text"><![CDATA[下载iTerm2，建议去官网下载，网址：http://www.iterm2.com/，也可以在下面分享云盘里取压缩包 把iTerm2移动到应用程序文件夹中 双击iTerm2来启动iterm2,并在dock中保留 切换bash到zsh：chsh -s /bin/zsho git clone git://github.com/altercation/solarized.git 到solarized/iterm2-colors-solarized 下双击 Solarized Dark.itermcolors 到iterm2的profiles中修改iterm2配置为 Solarized Dark]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[轻量级的DDOS预防策略]]></title>
+    <url>%2F2017%2F04%2F08%2F%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9A%84DDOS%E9%A2%84%E9%98%B2%E7%AD%96%E7%95%A5%2F</url>
+    <content type="text"><![CDATA[一、在/etc/sysctl.conf中添加： net.ipv4.tcp_max_syn_backlog=2048net.ipv4.tcp_syncookies=1net.ipv4.tcp_syn_retries = 0 二、iptables设置 #防止SYN攻击 轻量级预防iptables -N syn-floodiptables -A INPUT -p tcp –syn -j syn-floodiptables -I syn-flood -p tcp -m limit –limit 3/s –limit-burst 6 -j RETURNiptables -A syn-flood -j REJECT#防止DOS太多连接进来,可以允许外网网卡每个IP最多15个初始连接,超过的丢弃iptables -A INPUT -i eth0 -p tcp –syn -m connlimit –connlimit-above 15 -j DROPiptables -A INPUT -p tcp -m state –state ESTABLISHED,RELATED -j ACCEPTiptables -A INPUT -p tcp –syn -m limit –limit 12/s –limit-burst 24 -j ACCEPTiptables -A FORWARD -p tcp –syn -m limit –limit 1/s -j ACCEPT]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[centos下测试flannel的vxlan和udp模式]]></title>
+    <url>%2F2016%2F09%2F22%2Fcentos%E4%B8%8B%E6%B5%8B%E8%AF%95flannel%E7%9A%84vxlan%E5%92%8Cudp%E6%A8%A1%E5%BC%8F%2F</url>
+    <content type="text"><![CDATA[分别使用flannel的udp和vxlan模式下生成两台docker容器，一台作为iperf服务器，另一台作为客户端，运行如下命令： iperf -s -i 1 -w 1Miperf -c host -i 1 -w 1M 每次测试后需要执行命令: etcdctl rm –recursive /atomic.io/network/subnets 删除子网，并重启flannel和docker服务，生成新的网络配置，结果如下： udp [ ID] Interval Transfer Bandwidth[ 3] 0.0- 1.0 sec 13.6 MBytes 114 Mbits/sec[ 3] 1.0- 2.0 sec 13.2 MBytes 111 Mbits/sec[ 3] 2.0- 3.0 sec 9.25 MBytes 77.6 Mbits/sec[ 3] 3.0- 4.0 sec 11.4 MBytes 95.4 Mbits/sec[ 3] 4.0- 5.0 sec 13.5 MBytes 113 Mbits/sec[ 3] 5.0- 6.0 sec 14.6 MBytes 123 Mbits/sec[ 3] 6.0- 7.0 sec 13.4 MBytes 112 Mbits/sec[ 3] 7.0- 8.0 sec 12.6 MBytes 106 Mbits/sec[ 3] 8.0- 9.0 sec 15.0 MBytes 126 Mbits/sec[ 3] 9.0-10.0 sec 12.4 MBytes 104 Mbits/sec[ 3] 0.0-10.0 sec 129 MBytes 108 Mbits/sec vxlan [ ID] Interval Transfer Bandwidth[ 3] 0.0- 1.0 sec 36.4 MBytes 305 Mbits/sec[ 3] 1.0- 2.0 sec 34.8 MBytes 292 Mbits/sec[ 3] 2.0- 3.0 sec 39.4 MBytes 330 Mbits/sec[ 3] 3.0- 4.0 sec 35.9 MBytes 301 Mbits/sec[ 3] 4.0- 5.0 sec 38.9 MBytes 326 Mbits/sec[ 3] 5.0- 6.0 sec 38.5 MBytes 323 Mbits/sec[ 3] 6.0- 7.0 sec 35.4 MBytes 297 Mbits/sec[ 3] 7.0- 8.0 sec 37.2 MBytes 312 Mbits/sec[ 3] 8.0- 9.0 sec 40.0 MBytes 336 Mbits/sec[ 3] 9.0-10.0 sec 35.8 MBytes 300 Mbits/sec[ 3] 0.0-10.0 sec 372 MBytes 312 Mbits/sec 实验了大约4次，udp模式比vxlan模式的性能确实差了好多，至少在虚拟机上是这样，可能物理机udp的性能会稍微好一些。 测试环境如下： 处理器： 2.59 GHz Intel Core i5内存：16 GB 1600 MHz DDR3操作系统: OSX 10.11虚拟化软件: virtualbox虚拟化操作系统: centos7]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[BGAIC除胶]]></title>
+    <url>%2F2016%2F08%2F25%2FBGAIC%E9%99%A4%E8%83%B6%2F</url>
+    <content type="text"><![CDATA[目前不少品牌手机的BGAIC都灌了封胶，拆卸时就更加困难，针对这类IC的拆卸的去胶技巧。下面做详细的介绍。 对于摩托罗拉手机的封胶，市面上有许多品牌的溶胶水可以方便地去胶，经多次实验发现V998的CPU用香蕉水浸泡，去胶效果较好，一般浸泡3-4小时，封胶就容易去掉了。需注意的是：V998手机浸泡前一定要把字库取下，否则字库会损坏。因998字库是软封装的BGA，不能用香蕉水、天那水或溶胶水浸泡，这些溶剂对软封装的BGA字库中的胶有较强的腐蚀性，会使胶膨胀导致字库报废。当然，如果你没有溶胶水，也可直接拆卸，摩托罗拉的封胶耐温低，易软化，而CPU比较耐高温，只要注意方法，也可成功拆卸。 ①先将热风枪的风速及温度调到适当位置（一般风量3档、热量4档，可根据不同品牌热风枪自行调整）②将热风在CPU上方5cm处移动吹，大约半分钟后，用一小刀片从CPU接地脚较多的方向下手，一般从第一脚，也就是*暂存器上方开始撬，注意热风不能停。 ③CPU拆下来了，接着就是除胶，用热风枪一边吹，一力小心地用小刀慢慢地一点一点地刮，直到焊盘上干净为止。 诺基亚手机的底胶起先发特殊注塑，目前无比较好的落胶方法，拆卸时要注意操作技巧： ①固定机板，调节热风枪温度在270℃-300℃之间，风量调大，以不吹移阻容元件为准，对所拆的IC封胶预热20秒左右，然后移动风枪，等机板变凉后再预热，其预热3次，每次预热时都要加入油性较重的助焊剂，以便油质流入焊盘内起到保护作用。 ②把热风枪温度调到350℃-400℃之间，继续给IC加热，一边加热一边用镊子轻压IC，当看到锡珠从封胶中挤出来时，便可以从元件较少的一方用镊子尖把边上的封胶挑几个洞，让锡珠流出来，记住这时仍要不停地放油质助焊剂。 ③拆离IC，当看到IC下面不再有锡珠冒出时，用带弯钩的细尖镊子放入冒锡处的IC底下，轻轻一挑就可拆下了。 清理封胶，大多数的IC拆下后，封胶都留在主板上，首先在主板上的锡点处放上助焊剂，用烙铁把封胶上的锡珠吸走，多吸几次，能清晰在见到底部光亮的焊盘为止，主要作用是彻底让焊点和封胶分离。调节风枪温度270℃-300℃之间，对主板的封胶加热，这时候封胶就基本上脱离了焊盘，看准焊点与焊点之间的安全地方用镊子挑，挑的力度要控制好，如果图谋恰到好处，一挑就可以取下一大片。对于IC上的封胶清除慢不一样，先把IC清洗一下，然后在IC背面粘上双面胶，抒它固定在拆焊台上，风枪温度仍调到270℃-300℃之间，放上助焊剂，加热封胶，用镊子一挑就可清除。]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[开启orange pi的uart1]]></title>
+    <url>%2F2016%2F08%2F12%2F%E5%BC%80%E5%90%AForange-pi%E7%9A%84uart1%2F</url>
+    <content type="text"><![CDATA[一、下载最新的sunxin-tools代码并编译 git clone https://github.com/linux-sunxi/sunxi-toolscd sunxi-toolsmake 二、将script.bin转化成script.fex cp /boot/script.bin ../bin2fex script.bin &gt; script.fex 三、编辑script.fex，文本中查找uart1位置，替换为如下字符串： [uart1]uart_used = 1uart_port = 1uart_type = 2uart_tx = port:PG06&lt;2&gt;&lt;1&gt;&lt;default&gt;&lt;default&gt;uart_rx = port:PG07&lt;2&gt;&lt;1&gt;&lt;default&gt;&lt;default&gt; 四、将script.fex还原成script.bin，并替换原有的script.bin ./fex2bin script.fex &gt; script.bincp script.bin /boot]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[ubuntu16.04系统精简]]></title>
+    <url>%2F2016%2F08%2F10%2Fubuntu16-04%E7%B3%BB%E7%BB%9F%E7%B2%BE%E7%AE%80%2F</url>
+    <content type="text"><![CDATA[一、更新系统 apt-get updateapt-get dist-upgrade 二、查看所有内核 sudo dpkg –get-selections |grep linux 三、清除不用的内核 apt-get purge linux-image-extra-x.x.x-x-generic \ linux-image-x.x.x-x-generic \ linux-headers-x.x.x-x \ linux-headers-x.x.x-x-generic 四、删除无用的软件 apt-get purge mdadm \ git \ acpid \ vim \ ubuntu-cloudimage-keyring \ ubuntu-core-launcher \ software-properties-common \ lxc \ lxd* \ perlapt-get autoremove 五、清理文件 apt-get clean all]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[树莓派vlc硬解码]]></title>
+    <url>%2F2016%2F07%2F27%2F%E6%A0%91%E8%8E%93%E6%B4%BEvlc%E7%A1%AC%E8%A7%A3%E7%A0%81%2F</url>
+    <content type="text"><![CDATA[1、安装vlc sudo apt-get updatesudo apt-get upgradesudo apt-get install vlc 2、获得vlc源代码 sudo apt-get build-dep vlcapt-get source vlccd vlc-2.2.1 3、编辑debian/rules，找到–with-kde-solid位置，添加中间5行数据。 –with-kde-solid=/usr/share/kde4/apps/solid/actions/ \–enable-omxil \–enable-omxil-vout \–enable-rpi-omxil \–disable-mmal-codec \–disable-mmal-vout \$(NULL) 4、 edit the debian/vlc-nox.install.in file，找到第一行libomxil_plugin.so位置，添加最后一行数据。 usr/lib/vlc/plugins/codec/libomxil_plugin.sousr/lib/vlc/plugins/codec/libomxil_vout_plugin.so 5、build deb debuild -i -us -uc -b 6、安装deb包 cd .. &amp;&amp; sudo dpkg -i vlc-nox_2.2.1-3_armhf.deb]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[关于在django的线程中使用数据库问题]]></title>
+    <url>%2F2016%2F07%2F25%2F%E5%85%B3%E4%BA%8E%E5%9C%A8django%E7%9A%84%E7%BA%BF%E7%A8%8B%E4%B8%AD%E4%BD%BF%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%93%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[大家都知道在django使用数据库不需要做关闭操作，因为django中间件会帮助销毁相关的数据库连接；但是大家在程序中可能操作数据库是在线程或进程里进行的，这样的连接因为不在view中生成，所以django框架不会进行销毁，最终导致数据库连接泄漏问题。 详情请看：https://github.com/django/django/blob/master/django/db/init.py 的最后一行代码： def close_old_connections(**kwargs): for conn in connections.all(): conn.close_if_unusable_or_obsolete()signals.request_started.connect(close_old_connections)signals.request_finished.connect(close_old_connections) 可以看到数据库的连接和关闭监听的是request_started和request_finished事件；即所有没有经过request产生的数据库连接，django框架都不销毁。 解决方法有两种： 1、在进程/线程结束时手工调用close_old_connections。 2、在进程/线程开始和结束时分别调用request_started、request_finished这两个事件。 两种方法互有利弊，希望大家辩证的看待选型，通常为了简单，可在项目中统一采用一种方式，如下所示： import loggingimport queueimport threadingfrom django.core import signalsfrom .helper import recognize_tasklogger = logging.getLogger(&quot;default&quot;)class RecognizeTask(object): def init(self): self.queue = queue.Queue() self.started = False def add_task(self, args, **kwargs): self.queue.put((args, kwargs)) def task(self): while self.started: try: args, kwargs = self.queue.get() if not args and not kwargs: break try: signals.request_started.send(self) recognize_task(args, **kwargs) finally: signals.request_finished.send(self) except BaseException as e: logger.exception(e) def start(self): if not self.started: self.started = True thread = threading.Thread(target=self.task) thread.setDaemon(True) thread.start() def stop(self): self.started = False self.queue.put((None, None)) 在调用方法recognize_task的前后分别发送request_started和request_finished事件。]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[ubuntu12.04安装liberasurecode]]></title>
+    <url>%2F2015%2F09%2F24%2Fubuntu12-04%E5%AE%89%E8%A3%85liberasurecode%2F</url>
+    <content type="text"><![CDATA[ubuntu在14.04以后的版本才包含liberasurecode库，所以如果想在低版本的服务器上安装liberasurecode就需要自行编译，编译方法如下： git clone https://bitbucket.org/tsg-/liberasurecodesudo apt-get install autoconf automake libtoolcd liberasurecode./autogen.sh./configuremakemake install]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[某些特殊机型下使用OkHttp导致Timeout的问题]]></title>
+    <url>%2F2015%2F03%2F26%2F%E6%9F%90%E4%BA%9B%E7%89%B9%E6%AE%8A%E6%9C%BA%E5%9E%8B%E4%B8%8B%E4%BD%BF%E7%94%A8OkHttp%E5%AF%BC%E8%87%B4Timeout%E7%9A%84%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[近几天发现某些Android特殊机型（vivo y17t）下的OkHttp经常报Timeout，而在其他机型下却没有这个问题，问题内容如下： java.io.InterruptedIOException: timeout at okio.AsyncTimeout.exit(AsyncTimeout.java:249) at okio.AsyncTimeout$2.read(AsyncTimeout.java:217) at okio.RealBufferedSource.indexOf(RealBufferedSource.java:300) at okio.RealBufferedSource.indexOf(RealBufferedSource.java:289) at okio.RealBufferedSource.readUtf8LineStrict(RealBufferedSource.java:196) at com.squareup.okhttp.internal.http.HttpConnection.readHeaders(HttpConnection.java:219) at com.squareup.okhttp.internal.http.HttpConnection.readResponse(HttpConnection.java:198) at com.squareup.okhttp.internal.http.HttpTransport.readResponseHeaders(HttpTransport.java:80) at com.squareup.okhttp.internal.http.HttpEngine.readNetworkResponse(HttpEngine.java:830) at com.squareup.okhttp.internal.http.HttpEngine.access$200(HttpEngine.java:95) at com.squareup.okhttp.internal.http.HttpEngine$NetworkInterceptorChain.proceed(HttpEngine.java:823) at com.squareup.okhttp.internal.http.HttpEngine.readResponse(HttpEngine.java:684) at com.squareup.okhttp.Call.getResponse(Call.java:272) at com.squareup.okhttp.Call$ApplicationInterceptorChain.proceed(Call.java:228) at com.squareup.okhttp.Call.getResponseWithInterceptorChain(Call.java:199) at com.squareup.okhttp.Call.execute(Call.java:79) 或者是这个错误: java.net.SocketTimeoutException at java.net.PlainSocketImpl.read(PlainSocketImpl.java:495) at java.net.PlainSocketImpl.access$000(PlainSocketImpl.java:46) at java.net.PlainSocketImpl$PlainSocketInputStream.read(PlainSocketImpl.java:240) at okio.Okio$2.read(Okio.java:137) at okio.AsyncTimeout$2.read(AsyncTimeout.java:211) at okio.RealBufferedSource.indexOf(RealBufferedSource.java:300) at okio.RealBufferedSource.indexOf(RealBufferedSource.java:289) at okio.RealBufferedSource.readUtf8LineStrict(RealBufferedSource.java:196) at com.squareup.okhttp.internal.http.HttpConnection.readResponse(HttpConnection.java:190) at com.squareup.okhttp.internal.http.HttpTransport.readResponseHeaders(HttpTransport.java:80) at com.squareup.okhttp.internal.http.HttpEngine.readNetworkResponse(HttpEngine.java:830) at com.squareup.okhttp.internal.http.HttpEngine.access$200(HttpEngine.java:95) at com.squareup.okhttp.internal.http.HttpEngine$NetworkInterceptorChain.proceed(HttpEngine.java:823) at com.squareup.okhttp.internal.http.HttpEngine.readResponse(HttpEngine.java:684) at com.squareup.okhttp.Call.getResponse(Call.java:272) at com.squareup.okhttp.Call$ApplicationInterceptorChain.proceed(Call.java:228) at com.squareup.okhttp.Call.getResponseWithInterceptorChain(Call.java:199) at com.squareup.okhttp.Call.execute(Call.java:79) 对应生成OkHttpClient的代码如下： public class HttpClientFactory { public volatile static int MAX_IDLE_CONNECTIONS = 30; public volatile static int KEEP_ALIVE_DURATION_MS = 3 60 1000; private volatile static OkHttpClient current; private static OkHttpClient _newHttpClient() { OkHttpClient client = new OkHttpClient(); com.squareup.okhttp.internal.Internal.instance.setNetwork(client, new Network() { DNSQuery query = new CachedDNSQuery(); @Override public InetAddress[] resolveInetAddresses(String string) throws UnknownHostException { return query.query(string); } }); client.setConnectionPool(new com.squareup.okhttp.ConnectionPool( MAX_IDLE_CONNECTIONS, KEEP_ALIVE_DURATION_MS)); return client; } public static synchronized OkHttpClient currentHttpClient() { if (current == null) { current = _newHttpClient(); } return current; }} 后经过测试发现在一些机型下 volatile static变量修饰OkHttpClient会导致OkHttp的流Timeout，将生成OkHttpClient的代码修改为： public class HttpClientFactory { public static int MAX_IDLE_CONNECTIONS = 30; public static int KEEP_ALIVE_DURATION_MS = 3 60 1000; private final OkHttpClient client; private static HttpClientFactory instance; private HttpClientFactory() { client = new OkHttpClient(); com.squareup.okhttp.internal.Internal.instance.setNetwork(client, new Network() { DNSQuery query = new CachedDNSQuery(); @Override public InetAddress[] resolveInetAddresses(String string) throws UnknownHostException { return query.query(string); } }); client.setConnectionPool(new com.squareup.okhttp.ConnectionPool( MAX_IDLE_CONNECTIONS, KEEP_ALIVE_DURATION_MS)); client.setConnectTimeout(10, TimeUnit.SECONDS); client.setWriteTimeout(10, TimeUnit.SECONDS); client.setReadTimeout(30, TimeUnit.SECONDS); } public static synchronized OkHttpClient currentHttpClient() { if (instance == null) { instance = new HttpClientFactory(); } return instance.client; }} 问题解决，具体原因可能涉及到的Android的Dalvik虚拟机的底层实现问题，有时间深纠一下。 后记： 是在某些机型下，强制类型转换会产生问题，属于jit优化的一个bug，使用android:vmSafeMode=&quot;true&quot;可以解决问题；或者使用最新的okhttp客户端。]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[隐藏Virtualbox迷你工具栏]]></title>
+    <url>%2F2015%2F03%2F09%2F%E9%9A%90%E8%97%8FVirtualbox%E8%BF%B7%E4%BD%A0%E5%B7%A5%E5%85%B7%E6%A0%8F%2F</url>
+    <content type="text"><![CDATA[VBoxManage setextradata &quot;&lt;os name&gt;&quot; &quot;GUI/ShowMiniToolBar&quot; no]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[linux下vbox修改vmdk容量]]></title>
+    <url>%2F2014%2F12%2F29%2Flinux%E4%B8%8Bvbox%E4%BF%AE%E6%94%B9vmdk%E5%AE%B9%E9%87%8F%2F</url>
+    <content type="text"><![CDATA[1、必须先转换成vdi格式才能修改大小： VBoxManage clonehd xx.vmdk xx.vdi –format vdi 2、修改vdi磁盘大小： VBoxManage modifyhd xx.vdi –resize 75600 3、修改xxx.vbox配置文件，删除xx.vmdk，添加xx.vdi。 4、启动虚拟机，在虚拟机内部使用resize2fs修改分区大小。 resize2fs /dev/sdxx xxM]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[关于linux安全管理]]></title>
+    <url>%2F2014%2F11%2F12%2F%E5%85%B3%E4%BA%8Elinux%E5%AE%89%E5%85%A8%E7%AE%A1%E7%90%86%2F</url>
+    <content type="text"><![CDATA[创建新用户。 新用户加入sudo权限。 删除root用户密码。 关闭root用户的ssh登陆权限。 如果条件允许，iptables限制ssh的登陆IP。 iptable使用白名单，关闭不需要对外的端口。 对于系统软件，如果条件允许我们尽量不使root启动程序。 以上随时补充]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[uefi丢失修复]]></title>
+    <url>%2F2014%2F11%2F11%2Fuefi%E4%B8%A2%E5%A4%B1%E4%BF%AE%E5%A4%8D%2F</url>
+    <content type="text"><![CDATA[1、我们假设系统根目录是在/dev/sda4 2、挂载系统目录 mount /dev/sda4 /mnt 3、挂载其他目录： for f in proc sys dev ; do mount –bind /$f /mnt/$f ; done 3、查询历史的efi，并删除不需要的启动项，我们假设假设需要删除Boot0000* efibootmgr -vefibootmgr -b 0000* -B 4、修复bootloader chroot /mntgrub-install –bootloader-id ubuntu /dev/sda]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[迁移swift步骤]]></title>
+    <url>%2F2014%2F10%2F27%2F%E8%BF%81%E7%A7%BBswift%E6%AD%A5%E9%AA%A4%2F</url>
+    <content type="text"><![CDATA[1、 备份/etc/rsyncd.conf文件和/etc/swift/目录。 2、 安装操作系统，并预留sda4 3、 制作存储硬盘swift mkfs.xfs /dev/sda4echo &quot;/dev/sda4 /srv/node/sda4 xfs noatime,nodiratime,nobarrier,logbufs=8 0 0&quot; &gt;&gt; /etc/fstabmkdir -p /srv/node/sda4mount /srv/node/sda4chown -R swift:swift /srv/node 4、 安装swift 5、 将第一步备份的swfit配置文件复原 6、创建必要的文件夹并修改必要的权限 mkdir -p /var/cache/swiftchown -R swift:swift /var/cache/swift/mkdir -p /var/run/swiftchown -R swift:swift /var/run/swiftchown -R swift:swift /etc/swift 7、 修改/etc/default/rsync RSYNC_ENABLE=true 8、 安装memcached并修改监听为-l 0.0.0.0,并重启memcached service memcached restart]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[SSL behind an Nginx Reverse Proxy in Django 1.4]]></title>
+    <url>%2F2014%2F08%2F12%2FSSL-behind-an-Nginx-Reverse-Proxy-in-Django-1-4%2F</url>
+    <content type="text"><![CDATA[1、Have the proxy server (nginx in our case) set the X-Forwarded-Protocol HTTP header. In the nginx config: proxy_set_header X-Forwarded-Protocol $scheme; 2、Tell Django to use the X-Forwarded-Protocol HTTP header to determine if the request is secure. We define SECURE_PROXY_SSL_HEADER in settings.py: SECURE_PROXY_SSL_HEADER = (&#39;HTTP_X_FORWARDED_PROTOCOL&#39;, &#39;https&#39;)]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[Crossing GFW]]></title>
+    <url>%2F2014%2F07%2F23%2FCrossing-GFW%2F</url>
+    <content type="text"><![CDATA[1、执行ssh隧道 ssh -Nf -o ServerAliveInterval=29 -D 18080 user@ip 2、安装privoxy apt-get install privoxy 3、配置privoxy，修改/etc/privoxy/config，在最后添加: forward-socks5 / 127.0.0.1:18080 . 4、privoxy的默认端口是8118，代理方式是http。 5、重启privoxy，在浏览器配置代理。 6、完成]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[PEP8 Python 编码规范]]></title>
+    <url>%2F2014%2F07%2F01%2FPEP8-Python-%E7%BC%96%E7%A0%81%E8%A7%84%E8%8C%83%2F</url>
+    <content type="text"><![CDATA[#### 代码编排1. 缩进。4个空格的缩进（编辑器都可以完成此功能），不使用Tap，更不能混合使用Tap和空格。2. 每行最大长度79，换行可以使用反斜杠，最好使用圆括号。换行点要在操作符的后边敲回车。3. 类和top-level函数定义之间空两行；类中的方法定义之间空一行；函数内逻辑无关段落之间空一行；其他地方尽量不要再空行。#### 文档编排1. 模块内容的顺序：模块说明和docstring—import—globals&amp;constants—其他定义。其中import部分，又按标准、三方和自己编写顺序依次排放，之间空一行。2. 不要在一句import中多个库，比如import os, sys不推荐。3. 如果采用from XX import XX引用库，可以省略‘module.’，都是可能出现命名冲突，这时就要采用import XX。#### 空格的使用总体原则，避免不必要的空格。1. 各种右括号前不要加空格。2. 逗号、冒号、分号前不要加空格。3. 函数的左括号前不要加空格。如Func(1)。4. 序列的左括号前不要加空格。如list[2]。5. 操作符左右各加一个空格，不要为了对齐增加空格。6. 函数默认参数使用的赋值符左右省略空格。7. 不要将多句语句写在同一行，尽管使用‘；’允许。8. if/for/while语句中，即使执行语句只有一句，也必须另起一行。#### 注释总体原则，错误的注释不如没有注释。所以当一段代码发生变化时，第一件事就是要修改注释！注释必须使用英文，最好是完整的句子，首字母大写，句后要有结束符，结束符后跟两个空格，开始下一句。如果是短语，可以省略结束符。1. 块注释，在一段代码前增加的注释。在‘#’后加一空格。段落之间以只有‘#’的行间隔。比如：# Description : Module config.## Input : None## Output : None 行注释，在一句代码后加注释。比如：x = x + 1 # Increment x，但是这种方式尽量少使用。 避免无谓的注释。 文档描述 为所有的共有模块、函数、类、方法写docstrings；非共有的没有必要，但是可以写注释（在def的下一行）。 如果docstring要换行，参考如下例子,详见PEP 257&quot;&quot;&quot;Return a foobang Optional plotz says to frobnicate the bizbaz first. &quot;&quot;&quot; #### 命名规范总体原则，新编代码必须按下面命名风格进行，现有库的编码尽量保持风格。1. 尽量单独使用小写字母‘l’，大写字母‘O’等容易混淆的字母。2. 模块命名尽量短小，使用全部小写的方式，可以使用下划线。3. 包命名尽量短小，使用全部小写的方式，不可以使用下划线。4. 类的命名使用CapWords的方式，模块内部使用的类采用_CapWords的方式。5. 异常命名使用CapWords+Error后缀的方式。6. 全局变量尽量只在模块内有效，类似C语言中的static。实现方法有两种，一是all机制;二是前缀一个下划线。7. 函数命名使用全部小写的方式，可以使用下划线。8. 常量命名使用全部大写的方式，可以使用下划线。9. 类的属性（方法和变量）命名使用全部小写的方式，可以使用下划线。10. 类的属性有3种作用域public、non-public和subclass API，可以理解成C++中的public、private、protected，non-public属性前，前缀一条下划线。11. 类的属性若与关键字名字冲突，后缀一下划线，尽量不要使用缩略等其他方式。12. 为避免与子类属性命名冲突，在类的一些属性前，前缀两条下划线。比如：类Foo中声明a,访问时，只能通过Foo._Fooa，避免歧义。如果子类也叫Foo，那就无能为力了。13. 类的方法第一个参数必须是self，而静态方法第一个参数必须是cls。#### 编码建议1. 编码中考虑到其他python实现的效率等问题，比如运算符‘+’在CPython（Python）中效率很高，但是Jython中却非常低，所以应该采用.join()的方式。2. 尽可能使用‘is’‘is not’取代‘==’，比如if x is not None 要优于if x。3. 使用基于类的异常，每个模块或包都有自己的异常类，此异常类继承自Exception。4. 异常中不要使用裸露的except，except后跟具体的exceptions。5. 异常中try的代码尽可能少。比如：try: value = collection[key]except KeyError: return key_not_found(key)else: return handle_value(value)# 要优于try: # Too broad! return handle_value(collection[key])except KeyError: # Will also catch KeyError raised by handle_value() return key_not_found(key) 使用startswith() and endswith()代替切片进行序列前缀或后缀的检查。比如： if foo.startswith(&#39;bar&#39;):# 优于if foo[:3] == &#39;bar&#39;: 使用isinstance()比较对象的类型。比如 if isinstance(obj, int):# 优于if type(obj) is type(1): 判断序列空或不空，有如下规则 if not seq:if seq:# 优于if len(seq)if not len(seq) 字符串不要以空格收尾。 二进制数据判断使用 if boolvalue的方式。]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[避免接口设计中的坏味道]]></title>
+    <url>%2F2014%2F03%2F07%2F%E9%81%BF%E5%85%8D%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E4%B8%AD%E7%9A%84%E5%9D%8F%E5%91%B3%E9%81%93%2F</url>
+    <content type="text"><![CDATA[僵化性：很难对系统进行改动，因为每个改动都会迫使许多对系统其他部分的其它改动。 脆弱性：对系统的改动会导致系统中和改动的地方在概念上无关的许多地方出现问题。 牢固性：很难解开系统的纠结，使之成为一些可在其他系统中重用的组件。 粘滞性：做正确的事情比做错误的事情要困难。 复杂性：设计中包含有不具任何直接好处的基础结构。 重复性：设计中包含有重复的结构，而该重复的结构本可以使用单一的抽象进行统一。 晦涩性：很难阅读、理解。没有很好地表现出意图。]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[django自定义listfield并集成tastypie]]></title>
+    <url>%2F2014%2F03%2F05%2Fdjango%E8%87%AA%E5%AE%9A%E4%B9%89listfield%E5%B9%B6%E9%9B%86%E6%88%90tastypie%2F</url>
+    <content type="text"><![CDATA[Django本身并不支持listfield，本文将使用`models.SubfieldBase’元类实现自定义的ListField功能。 import astimport jsonfrom django.db import modelsfrom django.utils.six import with_metaclassclass ListField(with_metaclass(models.SubfieldBase, models.TextField)): description = &quot;Stores a python list&quot; def init(self, args, **kwargs): super(ListField, self).init(args, **kwargs) def to_python(self, value): if not value: value = [] if isinstance(value, list): return value return ast.literal_eval(value) def get_prep_value(self, value): if value is None: return value return unicode(value) def value_to_string(self, obj): value = self._get_val_from_obj(obj) return self.get_prep_value(value) tastypie默认的ModelResource并不能支持listfiled这个自定义字段，所以listfield会被转换为父类TextField方式处理，对此我们需要显示声明ListField字段。 class PoiResource(ModelResource): tags = fields.ListField(attribute=&#39;tag&#39;) class Meta: queryset = Poi.objects.all() resource_name = &#39;poi&#39; authorization = Authorization()]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[一致性HASH算法]]></title>
+    <url>%2F2014%2F02%2F25%2F%E4%B8%80%E8%87%B4%E6%80%A7HASH%E7%AE%97%E6%B3%95%2F</url>
+    <content type="text"><![CDATA[一致性哈希算法的基本实现原理是将机器节点和key值都按照一样的hash算法映射到一个0~2^32的圆环上。当有一个写入缓存的请求到来时，计算Key值k对应的哈希值Hash，如果该值正好对应之前某个机器节点的Hash值，则直接写入该机器节点，如果没有对应的机器节点，则顺时针查找下一个节点，进行写入，如果超过2^32还没找到对应节点，则从0开始查找。 一致性哈希基本解决了在P2P环境中最为关键的问题——如何在动态的网络拓扑中分布存储和路由。每个节点仅需维护少量相邻节点的信息，并且在节点加入/退出系统时，仅有相关的少量节点参与到拓扑的维护中。所有这一切使得一致性哈希成为第一个实用的DHT算法。]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[修改python默认编码为utf8]]></title>
+    <url>%2F2014%2F02%2F21%2F%E4%BF%AE%E6%94%B9python%E9%BB%98%E8%AE%A4%E7%BC%96%E7%A0%81%E4%B8%BAutf8%2F</url>
+    <content type="text"><![CDATA[为了让python2.7更好的兼容汉字，将python的默认编码更改为utf8. 打开配置文件 sudo vim /usr/lib/python2.7/site.py 找到setencoding()函数，替换以下内容，保存即可 encoding = &quot;utf8&quot; # encoding = &quot;ascii&quot;]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[nginx反向代理基本配置]]></title>
+    <url>%2F2014%2F02%2F21%2Fnginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE%2F</url>
+    <content type="text"><![CDATA[#### 配置实例:&gt; upstream backend {&gt; server 127.0.0.1:18001 weight=5;&gt; server unix:/tmp/backend3;&gt; }&gt;&gt; server {&gt; listen 80;&gt; location / {&gt; underscores_in_headers on;&gt; proxy_pass http://backend;&gt; proxy_set_header Host $host;&gt; proxy_set_header X-Url-Scheme $scheme;&gt; proxy_set_header X-Host $http_host;&gt; proxy_set_header X-Real-IP $remote_addr;&gt; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;&gt; proxy_set_header Proxy-host $proxy_host;&gt; proxy_redirect http:// $scheme://;&gt; client_max_body_size 400m;&gt; client_body_buffer_size 128k;&gt; proxy_buffering off;&gt; proxy_connect_timeout 1200;&gt; proxy_send_timeout 1200;&gt; proxy_read_timeout 1200;&gt; proxy_buffers 8 32k;&gt; }&gt; }&gt;]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[django中models函数实现i18n]]></title>
+    <url>%2F2014%2F02%2F20%2Fdjango%E4%B8%ADmodels%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0i18n%2F</url>
+    <content type="text"><![CDATA[我们在项目中经常会在django的models中添加一些方法，用来作只读属性，但是这些方法怎么作国际化处理呢？请参考下面代码中的is_published属性。 #### 代码实例：class Entry(models.Model): is_active = models.BooleanField(_(&quot;is active&quot;), help_text=_( &quot;Tick to make this entry live (see also the publication date).&quot; &quot; Note that administrators (like yourself) are allowed to preview &quot; &quot;inactive entries whereas the general public aren&#39;t.&quot;), default=False, db_index=True, ) pub_date = models.DateTimeField(verbose_name=_(&quot;Publication date&quot;), help_text=_(&quot;For an entry to be published, &quot; &quot;it must be active and its publication date must be in the past.&quot;), default=now(), db_index=True, ) def is_published(self): &quot;&quot;&quot; Return True if the entry is publicly accessible. &quot;&quot;&quot; return self.is_active and self.pub_date &lt;= now() is_published.boolean = True is_published.short_description = ugettext(&#39;is published&#39;) # i18n]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[ubuntu12.04升级到postgis2.0数据库]]></title>
+    <url>%2F2014%2F02%2F19%2Fubuntu12-04%E5%8D%87%E7%BA%A7%E5%88%B0postgis2-0%E6%95%B0%E6%8D%AE%E5%BA%93%2F</url>
+    <content type="text"><![CDATA[PostGIS 使得 PostgreSQL 数据库支持对地理数据的存储。2.0 版本包含大量新特性，如支持栅格数据和栅格/矢量分析，支持Postgres9.1扩展系统，允许在共享的边界上处理对象，支持 3D 和 4D 索引等等。本文主要内容是如何在ubuntu12.04上将Postgis升级到2.0版本。 停止关联程序 supervisorctl stop uuboard 升级数据库 sudo apt-get install python-software-propertiessudo apt-add-repository ppa:ubuntugis/ppasudo apt-get updatesudo apt-get install postgresql-9.1-postgissudo apt-get install postgis 备份数据 pg_dump -h localhost -p 5432 -U postgres -Fc -b -v -f &quot;olddb.backup&quot; uuboard 创建新数据库 CREATE DATABASE uuboard_new WITH OWNER = postgres ENCODING = &#39;UTF8&#39; TABLESPACE = pg_default LC_COLLATE = &#39;zh_CN.UTF-8&#39; LC_CTYPE = &#39;zh_CN.UTF-8&#39; CONNECTION LIMIT = -1; 创建扩展 psql -d uuboard_new -c &quot;CREATE EXTENSION postgis;&quot;psql -d uuboard_new -c &quot;CREATE EXTENSION postgis_topology;&quot;psql -d uuboard_new -f /usr/share/postgresql/9.1/contrib/postgis-2.0/legacy.sql 恢复数据 perl /usr/share/postgresql-9.1-postgis/utils/postgis_restore.pl &quot;olddb.backup&quot; | psql -h localhost -p 5432 -U postgres uuboard_new 2&gt; errors.txt 清理升级数据 psql -d uuboard_new -f /usr/share/postgresql/9.1/contrib/postgis-2.0/uninstall_legacy.sql 重命名数据库 psql -c &quot;ALTER DATABASE uuboard RENAME TO uuboard_backup&quot;psql -c &quot;ALTER DATABASE uuboard_new RENAME TO uuboard&quot; 查询是否升级成功 psql -d uuboard -c &quot;SELECT postgis_full_version();&quot;]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[安装hadoop2.0注意事项]]></title>
+    <url>%2F2013%2F10%2F19%2F%E5%AE%89%E8%A3%85hadoop2-0%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%2F</url>
+    <content type="text"><![CDATA[千万不能添加一条指向自己的hosts记录，ubuntu默认会建立，请一定删除。 安装统一的内网域名解析服务器dnsmasq辅助管理haddop。 dnsmasq域名服务器配置完成后需要重启（service dnsmasq restart）。 配置统一的rsa密钥，hadoop各节点之间无密码登录。 需要在整个集群中使用NTP服务。 具体安装方法请参见hadoop官网]]></content>
+  </entry>
+  <entry>
+    <title><![CDATA[自动更新ubuntu/debian]]></title>
+    <url>%2F2013%2F02%2F19%2F%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0ubuntu-debian%2F</url>
+    <content type="text"><![CDATA[unattended-upgrades是一个 Debian 软件包，用以自动安装安全（和其他）更新。如果你计划使用它，你要有一些方法监控你的系统，例如，同时安装 apt-listchanges软件包并设置它给你发送有关更新的邮件。 先安装程序 apt-get install unattended-upgrades 然后执行 dpkg-reconfigure unattended-upgrades //选择yes 修改配置文件 vim /etc/apt/apt.conf.d/50unattended-upgrades //配置vim /etc/apt/apt.conf.d/20auto-upgrades //更新周期]]></content>
+  </entry>
+</search>
